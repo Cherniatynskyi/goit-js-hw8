@@ -1,37 +1,51 @@
 import throttle from 'lodash.throttle';
-const form = document.querySelector('.feedback-form');
-const LOCALSTORAGE_KEY = "feedback-form-state";
 
-form.addEventListener('submit', onFormSubmit);
-form.addEventListener('input', throttle(onFormComplete, 500));
+const formRem = document.querySelector('.feedback-form')
+const inputRef = document.querySelector('input');
+const textareaRef =document.querySelector('textarea');
 
-onFormShow();
-    function onObjectSet() {
-     return {
-        email: form.elements.email.value,
-        message: form.elements.message.value,
-        };
-    }
-function onFormComplete() {
-    const fields = onObjectSet();
-    localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(fields));
-}
 
-function onFormSubmit(e) {
+const storageKey = "feedback-form-state";
+
+
+inputRef.addEventListener('input', throttle(onInputChange, 500))
+textareaRef.addEventListener('input', throttle(onInputChange, 500))
+
+
+updateInput();
+
+formRem.addEventListener('submit', (e) => {
     e.preventDefault();
-    if (form.elements.email.value && form.elements.message.value) {
-        console.log(onObjectSet())
-        e.currentTarget.reset();
-    localStorage.removeItem(LOCALSTORAGE_KEY);
-    } 
-}
+    const formData = new FormData(formRem);
+    formData.forEach((name, value) => {
+        console.log(name, value);
+    })          
 
-function onFormShow() {
-    const savedMessage = localStorage.getItem(LOCALSTORAGE_KEY)
-    if (savedMessage) {
-        const inputFill = JSON.parse(savedMessage);
-        form.elements.email.value = inputFill.email;
-        form.elements.message.value = inputFill.message;
- }
+    formRem.reset(); 
+    // console.log(localStorage.getItem(storageKey))
+    localStorage.removeItem(storageKey);   
+});
+
+
+function onInputChange (e) {    
+ const email = inputRef.value;
+ const message = textareaRef.value;
+ const formData = {
+    email,
+    message,
+ };
+ localStorage.setItem(storageKey, JSON.stringify(formData))
+ }; 
+
+
+function updateInput() {
+    let inputListSaved = localStorage.getItem(storageKey);
+    inputListSaved= JSON.parse(inputListSaved);
+
+      if(inputListSaved){
+      
+      inputRef.value = inputListSaved.email;
+      textareaRef.value = inputListSaved.message;
     
-}
+    };
+};
